@@ -103,7 +103,7 @@
             </p>
         </header>
 
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 gap-8">
 
             <!-- ==========================================
                  1. КАТЯЩЕЕСЯ КОЛЕСО
@@ -238,7 +238,7 @@
             <!-- ==========================================
                  5. ПИЦЦА ПИ
                  ========================================== -->
-            <div id="sim-pizza" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-pink-500/20 scroll-mt-16">
+            <div id="sim-pizza" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-pink-500/20 scroll-mt-16">
                 <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     <h2 class="text-2xl font-bold text-pink-500 dark:text-pink-400" data-i18n="pizza_title">5. Пицца Пи (Предел и Прямоугольник)</h2>
                 </div>
@@ -279,7 +279,7 @@
             <!-- ==========================================
                  6. ЛУКОВИЦА КЕПЛЕРА
                  ========================================== -->
-            <div id="sim-onion" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-teal-500/20 scroll-mt-16">
+            <div id="sim-onion" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-teal-500/20 scroll-mt-16">
                 <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" data-i18n="onion_title">6. Метод луковицы (Из круга в треугольник)</h2>
                 </div>
@@ -312,7 +312,7 @@
             <!-- ==========================================
                  7. СТОЛКНОВЕНИЕ БЛОКОВ (ГАЛИЛЕЙ И ПИ)
                  ========================================== -->
-            <div id="sim-blocks" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-orange-500/20 scroll-mt-16">
+            <div id="sim-blocks" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-orange-500/20 scroll-mt-16">
                 <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-orange-500 dark:text-orange-400" data-i18n="blocks_title">7. Столкновение блоков (Магия физики)</h2>
                     <span id="blocksSoundHint" class="text-xs bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2 py-1 rounded border border-orange-200 dark:border-orange-700/50" data-i18n="blocks_sound">Включите звук!</span>
@@ -353,7 +353,7 @@
             <!-- ==========================================
                  8. ЧИСЛОВЫЕ РЯДЫ (МАТАНАЛИЗ)
                  ========================================== -->
-            <div id="sim-series" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-indigo-500/20 scroll-mt-16">
+            <div id="sim-series" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-indigo-500/20 scroll-mt-16">
                 <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     <h2 class="text-2xl font-bold text-indigo-500 dark:text-indigo-400" data-i18n="series_title">8. Матанализ (Ряды Ньютона)</h2>
                 </div>
@@ -398,7 +398,7 @@
             <!-- ==========================================
                  9. КВИЗ
                  ========================================== -->
-            <div id="sim-quiz" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-rose-500/20 scroll-mt-16">
+            <div id="sim-quiz" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-rose-500/20 scroll-mt-16">
                 <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     <h2 class="text-2xl font-bold text-rose-500 dark:text-rose-400" data-i18n="quiz_title">Проверь себя!</h2>
                 </div>
@@ -846,7 +846,8 @@
                     const x = startX + m.v * D;
                     ctx.beginPath(); ctx.moveTo(x, groundY - 5); ctx.lineTo(x, groundY + 15);
                     ctx.strokeStyle = m.c || '#64748b'; ctx.lineWidth = m.c ? 2 : 1; ctx.stroke();
-                    ctx.fillStyle = m.c || '#64748b'; ctx.fillText(m.l, x, groundY + 30);
+                    const labelY = m.c ? groundY + 44 : groundY + 30;
+                    ctx.fillStyle = m.c || '#64748b'; ctx.fillText(m.l, x, labelY);
                 });
 
                 const curDist = t * maxDist;
