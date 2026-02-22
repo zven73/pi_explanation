@@ -55,12 +55,6 @@
         #topnav .nav-links::-webkit-scrollbar { display: none; }
         #topnav a.active { border-color: currentColor; opacity: 1; }
 
-        /* Pi progress bar */
-        #pi-progress { position: fixed; bottom: 16px; right: 16px; z-index: 40; }
-        @media (max-width: 640px) {
-            #pi-progress { bottom: 8px; right: 8px; font-size: 0.75rem; }
-        }
-
         /* Mobile canvas containers */
         @media (max-width: 640px) {
             .canvas-wrap { height: auto !important; min-height: 180px; }
@@ -85,7 +79,7 @@
                 <a href="#sim-quiz" class="shrink-0 px-2 py-1 text-xs rounded border border-transparent text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors" data-i18n="nav_quiz">Квиз</a>
             </div>
             <div class="flex gap-2 shrink-0">
-                <button id="btnLang" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">RU/EN</button>
+                <button id="btnLang" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">RU</button>
                 <button id="btnSound" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm" data-i18n="btn_sound_off">🔇</button>
                 <button id="btnTheme" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">☀️</button>
             </div>
@@ -417,15 +411,6 @@
         </div>
     </div>
 
-    <!-- Pi Progress Bar -->
-    <div id="pi-progress" class="bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg px-4 py-3 transition-all">
-        <div class="text-xs text-slate-500 dark:text-slate-400 mb-1" data-i18n="progress_label">Коллективная точность π</div>
-        <div class="font-mono text-lg font-bold text-cyan-600 dark:text-cyan-400" id="piProgressValue">3._____</div>
-        <div class="w-32 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-1 overflow-hidden">
-            <div id="piProgressBar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
-        </div>
-    </div>
-
     <script>
         // ==========================================
         // i18n TRANSLATIONS
@@ -633,6 +618,12 @@
 
         function t(key) { return T[currentLang][key] || T.ru[key] || key; }
 
+        const btnLang = document.getElementById('btnLang');
+
+        function syncLangButton() {
+            btnLang.textContent = currentLang === 'ru' ? 'RU' : 'EN';
+        }
+
         function applyLang() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -646,11 +637,12 @@
                 if (T[currentLang][key] !== undefined) el.innerHTML = T[currentLang][key];
             });
             document.documentElement.lang = currentLang === 'ru' ? 'ru' : 'en';
+            syncLangButton();
             syncSoundButton();
             buildQuiz();
         }
 
-        document.getElementById('btnLang').onclick = () => {
+        btnLang.onclick = () => {
             currentLang = currentLang === 'ru' ? 'en' : 'ru';
             localStorage.setItem('piLang', currentLang);
             applyLang();
