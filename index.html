@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вселенная числа Пи (π)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {} }
+        }
+    </script>
+    <style>
+        canvas { 
+            image-rendering: auto; 
+            user-select: none; 
+            -webkit-user-select: none;
+        }
+        .math-font { font-family: 'Cambria Math', 'Times New Roman', serif; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .tooltip { position: relative; cursor: help; border-bottom: 1px dotted currentColor; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300 selection:bg-cyan-500/30">
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- НАВИГАЦИЯ / НАСТРОЙКИ -->
+        <div class="flex justify-end gap-4 mb-4">
+            <button id="btnSound" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                🔇 Звук выключен
+            </button>
+            <button id="btnTheme" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                ☀️ Светлая
+            </button>
+        </div>
+
+        <header class="text-center mb-16 pb-4">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-emerald-500 to-indigo-500 dark:from-cyan-400 dark:via-emerald-400 dark:to-indigo-400 mb-4 pb-2">
+                8 способов понять число π
+            </h1>
+            <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+                От физики сталкивающихся блоков до ручного бросания дротиков. Идеально плавные анимации и математика в реальном времени.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+            <!-- ==========================================
+                 1. КАТЯЩЕЕСЯ КОЛЕСО
+                 ========================================== -->
+            <div id="sim-wheel" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">1. Развертка колеса</h2>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-900 rounded-xl relative border border-slate-700/50 mb-4 h-[250px] flex justify-center items-center overflow-hidden shadow-inner">
+                        <canvas id="rollingCanvas" width="600" height="250" class="max-w-full max-h-full"></canvas>
+                    </div>
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="text-slate-600 dark:text-slate-300">Оборот: <span id="rotationCount" class="font-mono text-cyan-600 dark:text-cyan-400 font-bold">0.00</span></div>
+                        <button id="restartRolling" class="px-5 py-2 bg-cyan-100 dark:bg-cyan-600/20 hover:bg-cyan-200 dark:hover:bg-cyan-600/40 text-cyan-700 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-500/30 rounded-lg transition-colors font-medium">Заново</button>
+                    </div>
+                    <details class="group mt-auto bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
+                            <span>Как это работает?</span><span>▼</span>
+                        </summary>
+                        <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                            <p>Длина окружности <span class="math-font font-bold">C = π × d</span>. Если диаметр колеса равен 1 единице, то за один полный оборот оно оставит на земле след длиной ровно <span class="tooltip" title="3.14159265...">π единиц</span>.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 2. МНОГОУГОЛЬНИКИ АРХИМЕДА
+                 ========================================== -->
+            <div id="sim-archimedes" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-amber-500 dark:text-amber-400">2. Метод Архимеда</h2>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-900 rounded-xl relative border border-slate-700/50 mb-4 h-[250px] flex justify-center items-center overflow-hidden shadow-inner">
+                        <canvas id="archimedesCanvas" width="250" height="250" class="max-w-full max-h-full"></canvas>
+                    </div>
+                    <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
+                        <div class="flex justify-between items-center mb-2">
+                            <span>3 грани</span>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold">Граней:</span>
+                                <input type="number" id="polyInput" min="3" max="500" value="3" class="w-16 px-2 py-1 bg-slate-100 dark:bg-slate-900 border border-amber-300 dark:border-slate-600 rounded text-center text-amber-600 dark:text-amber-400 font-bold focus:outline-none focus:border-amber-500">
+                            </div>
+                            <span>500</span>
+                        </div>
+                        <input type="range" id="polySlider" min="3" max="500" value="3" class="w-full accent-amber-500 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/50 mb-6">
+                        <div>Вписанный: <span id="piMin" class="font-mono text-red-500 dark:text-red-400 font-bold block">0.00000</span></div>
+                        <div>Описанный: <span id="piMax" class="font-mono text-blue-500 dark:text-blue-400 font-bold block">0.00000</span></div>
+                    </div>
+                    <details class="group mt-auto bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
+                            <span>Попробуйте 96 граней!</span><span>▼</span>
+                        </summary>
+                        <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                            <p>Архимед «зажал» Пи между двумя многоугольниками. Он вручную (без калькуляторов!) досчитал до 96 граней. Введите 96 в поле выше, чтобы увидеть его результат.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 3. МОНТЕ-КАРЛО
+                 ========================================== -->
+            <div id="sim-montecarlo" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3. Монте-Карло</h2>
+                    <span class="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded border border-emerald-200 dark:border-emerald-700/50 animate-pulse">Кликай по мишени!</span>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-900 rounded-xl relative border border-slate-700/50 mb-4 h-[250px] flex justify-center items-center overflow-hidden shadow-inner cursor-crosshair">
+                        <canvas id="monteCarloCanvas" width="250" height="250" class="max-w-full max-h-full"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/50 mb-4">
+                        <div>Бросков: <span id="totalPoints" class="font-mono text-slate-700 dark:text-slate-300 font-bold">0</span></div>
+                        <div>В круге: <span id="insidePoints" class="font-mono text-emerald-600 dark:text-emerald-400 font-bold">0</span></div>
+                        <div class="col-span-2 text-center text-lg mt-1 border-t border-slate-200 dark:border-slate-700/50 pt-2 text-slate-700 dark:text-slate-300">
+                            π ≈ <span id="piEstimate" class="font-bold font-mono text-emerald-600 dark:text-emerald-400">0.00000</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mb-6">
+                        <button id="fastForwardMC" class="flex-1 px-4 py-2 bg-emerald-100 dark:bg-emerald-600/20 hover:bg-emerald-200 dark:hover:bg-emerald-600/40 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30 rounded-lg transition-colors font-medium">Автобросок</button>
+                        <button id="resetMC" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-slate-700 dark:text-slate-200">Сброс</button>
+                    </div>
+                    <details class="group mt-auto bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
+                            <span>Как это работает?</span><span>▼</span>
+                        </summary>
+                        <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                            <p>Площадь круга (<span class="math-font">πr²</span>) деленная на площадь квадрата (<span class="math-font">4r²</span>) равна <span class="math-font font-bold">π / 4</span>. Доля дротиков, попавших в круг, стремится к этому числу.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 4. ИГЛА БЮФФОНА
+                 ========================================== -->
+            <div id="sim-buffon" class="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400">4. Игла Бюффона</h2>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-900 rounded-xl relative border border-slate-700/50 mb-4 h-[250px] flex justify-center items-center overflow-hidden shadow-inner">
+                        <canvas id="buffonCanvas" width="400" height="250" class="max-w-full max-h-full"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/50 mb-4">
+                        <div>Спичек: <span id="buffonTotal" class="font-mono text-slate-700 dark:text-slate-300 font-bold">0</span></div>
+                        <div>Пересечений: <span id="buffonCross" class="font-mono text-purple-600 dark:text-purple-400 font-bold">0</span></div>
+                        <div class="col-span-2 text-center text-lg mt-1 border-t border-slate-200 dark:border-slate-700/50 pt-2 text-slate-700 dark:text-slate-300">
+                            π ≈ <span id="buffonPi" class="font-bold font-mono text-purple-600 dark:text-purple-400">0.00000</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mb-6">
+                        <button id="fastForwardBuffon" class="flex-1 px-4 py-2 bg-purple-100 dark:bg-purple-600/20 hover:bg-purple-200 dark:hover:bg-purple-600/40 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/30 rounded-lg transition-colors font-medium">Ускорить броски</button>
+                        <button id="resetBuffon" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium text-slate-700 dark:text-slate-200">Очистить пол</button>
+                    </div>
+                    <details class="group mt-auto bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                        <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
+                            <span>Где тут Пи?</span><span>▼</span>
+                        </summary>
+                        <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                            <p>Вероятность пересечения щели спичкой (если её длина равна ширине доски) равна <span class="math-font font-bold">2 / π</span>. Разделив удвоенное число бросков на пересечения, мы получаем Пи.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 5. ПИЦЦА ПИ
+                 ========================================== -->
+            <div id="sim-pizza" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-pink-500/20">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-pink-500 dark:text-pink-400">5. Пицца Пи (Предел и Прямоугольник)</h2>
+                </div>
+                <div class="p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-2/3 bg-slate-900 rounded-xl relative border border-slate-700/50 overflow-hidden flex justify-center items-center shadow-inner py-4">
+                        <canvas id="pizzaCanvas" width="800" height="350" class="max-w-full h-auto max-h-[350px]"></canvas>
+                    </div>
+                    <div class="w-full md:w-1/3 flex flex-col gap-6">
+                        <div class="text-center">
+                            <p class="text-slate-600 dark:text-slate-300 mb-6 text-sm md:text-base">Потяните ползунок, чтобы разрезать пиццу на большее число частей. Чем их больше, тем ближе фигура к идеальному прямоугольнику!</p>
+                            
+                            <div class="mb-2 flex justify-between text-sm text-slate-500 items-center">
+                                <span>4</span>
+                                <span class="font-bold text-pink-600 dark:text-pink-400 text-base border border-pink-200 dark:border-pink-500/30 bg-pink-50 dark:bg-pink-900/30 px-3 py-1 rounded-lg shadow-sm dark:shadow-inner">
+                                    Кусочков: <span id="pizzaSlicesVal" class="font-mono text-lg">8</span>
+                                </span>
+                                <span>100</span>
+                            </div>
+                            <input type="range" id="pizzaSlider" min="4" max="100" step="2" value="8" class="w-full accent-pink-500 h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer mb-6">
+                            
+                            <button id="pizzaBtn" class="w-full px-5 py-3 bg-pink-100 dark:bg-pink-600/20 hover:bg-pink-200 dark:hover:bg-pink-600/40 text-pink-700 dark:text-pink-400 border border-pink-300 dark:border-pink-500/30 transition-all rounded-lg font-bold text-lg mb-4">
+                                Собрать прямоугольник
+                            </button>
+                        </div>
+                        <details class="group bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                            <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
+                                <span>Доказательство площади</span><span>▼</span>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                                <p class="mb-2">Длина всех корочек пиццы = <span class="math-font text-pink-600 dark:text-pink-300 font-bold">2πR</span>.</p>
+                                <p class="mb-2">При <span class="math-font font-bold tooltip" title="Стремится к бесконечности">N → ∞</span> боковые грани становятся вертикальными!</p>
+                                <p class="text-slate-800 dark:text-white bg-pink-100 dark:bg-pink-900/40 p-2 rounded border border-pink-200 dark:border-pink-500/30 mt-3 font-medium">
+                                    Ширина = <span class="math-font text-pink-600 dark:text-pink-300">πR</span>, Высота = <span class="math-font text-pink-600 dark:text-pink-300">R</span><br>
+                                    <span class="math-font text-pink-600 dark:text-pink-300 font-bold text-base">S = R × (πR) = πR²</span>
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 6. ЛУКОВИЦА КЕПЛЕРА
+                 ========================================== -->
+            <div id="sim-onion" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-teal-500/20">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400">6. Метод луковицы (Из круга в треугольник)</h2>
+                </div>
+                <div class="p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-2/3 bg-slate-900 rounded-xl relative border border-slate-700/50 overflow-hidden flex justify-center items-center shadow-inner py-4">
+                        <canvas id="onionCanvas" width="800" height="350" class="max-w-full h-auto max-h-[350px]"></canvas>
+                    </div>
+                    <div class="w-full md:w-1/3 flex flex-col gap-6">
+                        <div class="text-center">
+                            <p class="text-slate-600 dark:text-slate-300 mb-4 text-sm md:text-base">Представим круг как мишень из множества колец. Разрежем и развернем их все разом!</p>
+                            <button id="onionBtn" class="w-full px-5 py-3 bg-teal-100 dark:bg-teal-600/20 hover:bg-teal-200 dark:hover:bg-teal-600/40 text-teal-700 dark:text-teal-400 border border-teal-300 dark:border-teal-500/30 transition-all rounded-lg font-bold text-lg mb-4">
+                                Развернуть кольца!
+                            </button>
+                            <input type="range" id="onionSlider" min="0" max="100" value="0" class="w-full accent-teal-500 h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <details class="group bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                            <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
+                                <span>Доказательство площади (Интеграл)</span><span>▼</span>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                                <p class="mb-2">Внешнее кольцо разворачивается в основание (<span class="math-font text-teal-600 dark:text-teal-300">2πR</span>). Внутренние кольца образуют лесенку, становясь идеальным треугольником.</p>
+                                <p class="text-slate-800 dark:text-white bg-teal-100 dark:bg-teal-900/40 p-2 rounded border border-teal-200 dark:border-teal-500/30 mt-3 font-medium">
+                                    Площадь = ½ × Основание × Высота<br>
+                                    <span class="math-font text-teal-600 dark:text-teal-300 font-bold text-base">S = ½ × (2πR) × R = πR²</span>
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 7. СТОЛКНОВЕНИЕ БЛОКОВ (ГАЛИЛЕЙ И ПИ)
+                 ========================================== -->
+            <div id="sim-blocks" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-orange-500/20">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-orange-500 dark:text-orange-400">7. Столкновение блоков (Магия физики)</h2>
+                    <span class="text-xs bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2 py-1 rounded border border-orange-200 dark:border-orange-700/50 animate-bounce">Включите звук!</span>
+                </div>
+                <div class="p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-2/3 bg-slate-900 rounded-xl relative border border-slate-700/50 overflow-hidden flex flex-col shadow-inner">
+                        <canvas id="blocksCanvas" width="800" height="250" class="max-w-full h-auto"></canvas>
+                        
+                        <div class="absolute top-4 right-4 bg-slate-800/90 px-4 py-2 rounded-lg border border-slate-600 shadow-lg text-center backdrop-blur-sm">
+                            <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Столкновения</div>
+                            <div id="blocksCollisions" class="text-4xl font-mono font-bold text-orange-400 leading-none">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-1/3 flex flex-col gap-6">
+                        <div class="text-center">
+                            <p class="text-slate-600 dark:text-slate-300 mb-4 text-sm md:text-base">Смотрите на векторы скорости (стрелки)! Огромный импульс заставляет маленький кубик метаться как пуля.</p>
+                            <div class="mb-4 text-left">
+                                <label class="text-sm font-bold text-slate-500 dark:text-slate-400 block mb-2">Соотношение масс кубов:</label>
+                                <select id="blocksMass" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white rounded-lg px-3 py-2 outline-none font-mono cursor-pointer shadow-sm">
+                                    <option value="0">1 : 1 (Массы и размеры равны)</option>
+                                    <option value="1">100 : 1 (Большой тяжелее)</option>
+                                    <option value="2">10 000 : 1 (Гигантский вес)</option>
+                                </select>
+                            </div>
+                            <button id="blocksBtn" class="w-full mt-2 px-5 py-3 bg-orange-100 dark:bg-orange-600/20 hover:bg-orange-200 dark:hover:bg-orange-600/40 text-orange-700 dark:text-orange-400 border border-orange-300 dark:border-orange-500/30 transition-all rounded-lg font-bold shadow-md">
+                                Запустить симуляцию
+                            </button>
+                        </div>
+                        <details class="group bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50" open>
+                            <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-orange-600 dark:group-hover:text-orange-300 transition-colors">
+                                <span>В чем парадокс Пи?</span><span>▼</span>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                                <p>По закону сохранения энергии, если масса большого куба равна <span class="math-font font-bold">100<sup>N</sup></span> кг, то общее количество столкновений до того момента, как оба куба улетят вправо (и малый уже не догонит большого), будет равно первым <span class="math-font font-bold">N+1</span> цифрам числа Пи!</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 8. ЧИСЛОВЫЕ РЯДЫ (МАТАНАЛИЗ)
+                 ========================================== -->
+            <div id="sim-series" class="xl:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-xl transition-colors ring-1 ring-indigo-500/20">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <h2 class="text-2xl font-bold text-indigo-500 dark:text-indigo-400">8. Матанализ (Ряды Ньютона)</h2>
+                </div>
+                <div class="p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-2/3 bg-slate-900 rounded-xl relative border border-slate-700/50 overflow-hidden flex flex-col shadow-inner">
+                        <canvas id="seriesCanvas" width="800" height="300" class="max-w-full h-auto max-h-[300px]"></canvas>
+                        <div class="bg-slate-800/80 p-3 text-xs md:text-sm grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-700/50">
+                            <div class="text-sky-400 font-mono">
+                                <span class="text-slate-400 text-xs block mb-1">Ряд Лейбница (Медленный)</span>
+                                π ≈ 4 - 4/3 + 4/5 - 4/7 ... <br>
+                                <span id="valLeibniz" class="text-lg font-bold">0.00000</span>
+                            </div>
+                            <div class="text-indigo-400 font-mono">
+                                <span class="text-slate-400 text-xs block mb-1">Ряд Нилаканты (Продвинутый)</span>
+                                π ≈ 3 + 4/(2·3·4) - 4/(4·5·6) ... <br>
+                                <span id="valNil" class="text-lg font-bold">0.00000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-1/3 flex flex-col gap-6">
+                        <div class="text-center">
+                            <p class="text-slate-600 dark:text-slate-300 mb-4 text-sm md:text-base">График показывает, как суммирование бесконечного ряда дробей приближается к точной линии Пи.</p>
+                            <div class="text-slate-500 dark:text-slate-400 text-sm mb-2">Шагов вычислено: <span id="seriesTerms" class="text-slate-800 dark:text-white font-bold">0</span></div>
+                            <input type="range" id="seriesSlider" min="0" max="60" value="0" class="w-full accent-indigo-500 h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer mb-4">
+                            <button id="seriesBtn" class="w-full px-5 py-2 bg-indigo-100 dark:bg-indigo-600/20 hover:bg-indigo-200 dark:hover:bg-indigo-600/40 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-500/30 transition-all rounded-lg font-bold">
+                                Автоматический расчет
+                            </button>
+                        </div>
+                        <details class="group bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50" open>
+                            <summary class="flex justify-between p-4 font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
+                                <span>Высшая ступень математики</span><span>▼</span>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-600 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700/50 mt-2">
+                                <p class="mb-2">Геометрией считать сложно. Исаак Ньютон понял, что Пи можно представить как бесконечную сумму простых дробей.</p>
+                                <p class="mb-3 text-indigo-500 dark:text-indigo-400 font-medium">🦠 Интересный факт: Ньютон разработал этот невероятный метод в 1665 году, сидя дома на строгой самоизоляции из-за эпидемии Великой лондонской чумы — совсем как весь мир в 2020-2022 годах!</p>
+                                <p><strong>Голубой график</strong> — прыгает вокруг Пи очень медленно.</p>
+                                <p><strong>Фиолетовый график</strong> — сходится к линии Пи мгновенно, иллюстрируя гениальность "ускоренных" расчетов!</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ГЛОБАЛЬНЫЕ УТИЛИТЫ (ЗВУК, ТЕМА, RETINA)
+        // ==========================================
+        
+        const btnTheme = document.getElementById('btnTheme');
+        btnTheme.onclick = () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            btnTheme.innerText = isDark ? "☀️ Светлая" : "🌙 Темная";
+        };
+
+        let audioCtx = null;
+        let soundEnabled = false;
+        let lastClink = 0; 
+
+        document.getElementById('btnSound').onclick = (e) => {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            soundEnabled = !soundEnabled;
+            e.target.innerText = soundEnabled ? "🔊 Звук включен" : "🔇 Звук выключен";
+            e.target.classList.toggle('bg-emerald-100'); e.target.classList.toggle('dark:bg-emerald-800');
+            e.target.classList.toggle('border-emerald-300'); e.target.classList.toggle('dark:border-emerald-600');
+        };
+
+        function playSound(type, freq, duration, vol=0.1) {
+            if (!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.value = freq;
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start();
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function makeRetina(cvs) {
+            const ctx = cvs.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const w = parseInt(cvs.getAttribute('width'));
+            const h = parseInt(cvs.getAttribute('height'));
+            
+            cvs.style.width = w + 'px';
+            cvs.style.maxWidth = '100%';
+            cvs.style.height = 'auto';
+            
+            cvs.width = w * dpr;
+            cvs.height = h * dpr;
+            ctx.scale(dpr, dpr);
+            return { ctx, w, h };
+        }
+
+        function round5(val) { return parseFloat(val).toFixed(5); }
+
+
+        // ==========================================
+        // ФАБРИКИ СИМУЛЯЦИЙ
+        // ==========================================
+
+        // 1. КОЛЕСО
+        const createWheel = () => {
+            const cvs = document.getElementById('rollingCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const lbl = document.getElementById('rotationCount'), btn = document.getElementById('restartRolling');
+            const R = 35, D = R * 2, groundY = 180, startX = 50, maxDist = Math.PI * D;
+            let t = 0, isRolling = true, trail = [], playing = false;
+
+            function render() {
+                if (!playing) return;
+                ctx.clearRect(0, 0, w, h);
+                ctx.beginPath(); ctx.moveTo(20, groundY); ctx.lineTo(w - 20, groundY);
+                ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.stroke();
+                
+                const marks = [{v:0, l:'0'}, {v:1, l:'1d'}, {v:2, l:'2d'}, {v:3, l:'3d'}, {v:Math.PI, l:'π × d', c:'#22d3ee'}];
+                ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+                marks.forEach(m => {
+                    const x = startX + m.v * D;
+                    ctx.beginPath(); ctx.moveTo(x, groundY - 5); ctx.lineTo(x, groundY + 15);
+                    ctx.strokeStyle = m.c || '#64748b'; ctx.lineWidth = m.c ? 2 : 1; ctx.stroke();
+                    ctx.fillStyle = m.c || '#64748b'; ctx.fillText(m.l, x, groundY + 30);
+                });
+
+                const curDist = t * maxDist;
+                ctx.beginPath(); ctx.moveTo(startX, groundY - 1); ctx.lineTo(startX + curDist, groundY - 1);
+                ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 4; ctx.stroke();
+
+                const cx = startX + curDist, cy = groundY - R, angle = t * Math.PI * 2;
+                const px = cx + R * Math.cos(angle + Math.PI/2), py = cy + R * Math.sin(angle + Math.PI/2);
+                if (isRolling) trail.push({x: px, y: py});
+                
+                if (trail.length > 1) {
+                    ctx.beginPath(); ctx.moveTo(trail[0].x, trail[0].y);
+                    for(let i=1; i<trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y);
+                    ctx.strokeStyle = 'rgba(248, 113, 113, 0.4)'; ctx.lineWidth = 2; ctx.stroke();
+                }
+
+                ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(34, 211, 238, 0.1)'; ctx.fill();
+                ctx.lineWidth = 2; ctx.strokeStyle = '#06b6d4'; ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py);
+                ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2; ctx.stroke();
+                ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#f87171'; ctx.fill();
+                
+                lbl.innerText = t.toFixed(2);
+                if (isRolling) { 
+                    t += 0.004; 
+                    if (t >= 1) { 
+                        t = 1; isRolling = false; lbl.innerText = "1.00 (Оборот)"; 
+                        playSound('sine', 600, 0.1, 0.05);
+                    } 
+                }
+                requestAnimationFrame(render);
+            }
+            btn.onclick = () => { t = 0; isRolling = true; trail = []; if(!playing){playing=true; render();} };
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // 2. АРХИМЕД
+        const createArchimedes = () => {
+            const cvs = document.getElementById('archimedesCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const slider = document.getElementById('polySlider'), numInput = document.getElementById('polyInput');
+            const R = 100, CX = w / 2, CY = h / 2;
+            let playing = false, autoPlayInterval, currentAutoVal = 3, isAutoPlaying = true;
+            
+            function drawPolygon(n, radius, color) {
+                ctx.beginPath();
+                for (let i = 0; i <= n; i++) {
+                    const angle = (i * 2 * Math.PI) / n - Math.PI/2;
+                    const x = CX + radius * Math.cos(angle), y = CY + radius * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+            }
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                const n = parseInt(slider.value);
+                numInput.value = n;
+                ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.stroke(); 
+                document.getElementById('piMin').innerText = round5(n * Math.sin(Math.PI / n));
+                document.getElementById('piMax').innerText = round5(n * Math.tan(Math.PI / n));
+                drawPolygon(n, R, '#f87171'); drawPolygon(n, R / Math.cos(Math.PI / n), '#60a5fa'); 
+            }
+            function stopAuto() { if(isAutoPlaying){ clearInterval(autoPlayInterval); isAutoPlaying = false; } }
+            
+            slider.addEventListener('input', () => { stopAuto(); draw(); });
+            numInput.addEventListener('input', (e) => {
+                stopAuto();
+                let val = parseInt(e.target.value) || 3;
+                if(val > 500) val = 500; if(val < 3) val = 3;
+                slider.value = val; draw();
+            });
+
+            return { 
+                play: () => { 
+                    if(!playing) { 
+                        playing = true; draw(); 
+                        if(isAutoPlaying && !autoPlayInterval) {
+                            autoPlayInterval = setInterval(() => {
+                                if (currentAutoVal < 12) { currentAutoVal++; slider.value = currentAutoVal; draw(); } 
+                                else { stopAuto(); }
+                            }, 180);
+                        }
+                    } 
+                }, 
+                pause: () => { playing = false; clearInterval(autoPlayInterval); autoPlayInterval = null; } 
+            };
+        };
+
+        // 3. МОНТЕ-КАРЛО
+        const createMonteCarlo = () => {
+            const cvs = document.getElementById('monteCarloCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            let total = 0, inside = 0, speed = 10, running = true, playing = false;
+            const R = w / 2, CX = R;
+            
+            function drawBg() {
+                ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.strokeRect(1,1, w-2, h-2);
+                ctx.beginPath(); ctx.arc(CX, CX, R-1, 0, Math.PI*2); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.stroke();
+            }
+            function throwDart(px, py) {
+                const x = (px - CX) / R; const y = (py - CX) / R;
+                total++;
+                if (x*x + y*y <= 1) { inside++; ctx.fillStyle = '#34d399'; } else { ctx.fillStyle = '#ef4444'; }
+                ctx.fillRect(px, py, 2, 2);
+                updateUI();
+            }
+            function updateUI() {
+                document.getElementById('totalPoints').innerText = total;
+                document.getElementById('insidePoints').innerText = inside;
+                if(total>0) document.getElementById('piEstimate').innerText = round5(4 * inside / total);
+            }
+            function render() {
+                if (!playing) return;
+                if(running && speed > 0) {
+                    for(let i=0; i<speed; i++) {
+                        const px = Math.random() * w, py = Math.random() * h;
+                        throwDart(px, py);
+                    }
+                    if (total % 1000 < speed) drawBg(); 
+                }
+                requestAnimationFrame(render);
+            }
+            
+            cvs.addEventListener('click', (e) => {
+                const rect = cvs.getBoundingClientRect();
+                const scaleX = w / rect.width; 
+                const px = (e.clientX - rect.left) * scaleX;
+                const py = (e.clientY - rect.top) * scaleX;
+                throwDart(px, py);
+                playSound('triangle', 800, 0.02, 0.05);
+            });
+
+            document.getElementById('fastForwardMC').onclick = (e) => {
+                if(speed === 10) { speed = 1000; e.target.innerText = "Пауза"; running = true; }
+                else if (speed === 1000) { speed = 0; e.target.innerText = "Пуск"; running = false; }
+                else { speed = 10; e.target.innerText = "Автобросок"; running = true; }
+            };
+            document.getElementById('resetMC').onclick = () => { ctx.clearRect(0,0,w,h); drawBg(); total = 0; inside = 0; updateUI(); };
+            
+            drawBg();
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // 4. БЮФФОН
+        const createBuffon = () => {
+            const cvs = document.getElementById('buffonCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            let total = 0, crosses = 0, speed = 2, D = 40, L = 40, playing = false;
+            
+            function drawFloorGaps() {
+                ctx.strokeStyle = '#020617'; ctx.lineWidth = 3;
+                for(let x = 0; x <= w; x += D) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+                ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+                for(let x = 0; x <= w; x += D) { ctx.beginPath(); ctx.moveTo(x+2, 0); ctx.lineTo(x+2, h); ctx.stroke(); }
+            }
+            function drawBaseFloor() { ctx.clearRect(0,0,w,h); ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,w,h); drawFloorGaps(); }
+            
+            function render() {
+                if (!playing) return;
+                let threw = false;
+                for(let i=0; i<speed; i++) {
+                    const cx = Math.random() * w, cy = Math.random() * h, angle = Math.random() * Math.PI;
+                    const dx = (L / 2) * Math.cos(angle), dy = (L / 2) * Math.sin(angle);
+                    const x1 = cx - dx, y1 = cy - dy, x2 = cx + dx, y2 = cy + dy;
+                    total++;
+                    const isCross = Math.floor(x1 / D) !== Math.floor(x2 / D);
+                    if (isCross) crosses++;
+                    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = isCross ? 'rgba(192, 132, 252, 0.75)' : 'rgba(148, 163, 184, 0.4)'; ctx.lineWidth = 2; ctx.stroke();
+                    threw = true;
+                }
+                if(threw) {
+                    drawFloorGaps();
+                    document.getElementById('buffonTotal').innerText = total; document.getElementById('buffonCross').innerText = crosses;
+                    if (crosses > 0) document.getElementById('buffonPi').innerText = round5((2 * total) / crosses);
+                    if(speed === 2) playSound('square', 200, 0.05, 0.05); 
+                }
+                requestAnimationFrame(render);
+            }
+            
+            document.getElementById('fastForwardBuffon').onclick = (e) => { speed = speed === 2 ? 300 : 2; e.target.innerText = speed === 2 ? "Ускорить броски" : "Обычная скорость"; };
+            document.getElementById('resetBuffon').onclick = () => { drawBaseFloor(); total = 0; crosses = 0; document.getElementById('buffonTotal').innerText = "0"; document.getElementById('buffonCross').innerText = "0"; };
+            drawBaseFloor();
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // 5. ПИЦЦА
+        const createPizza = () => {
+            const cvs = document.getElementById('pizzaCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const slider = document.getElementById('pizzaSlider'), btn = document.getElementById('pizzaBtn');
+            let targetT = 0, currentT = 0, isAnimating = false, playing = false;
+            let N = parseInt(slider.value); 
+            const R = 110, CX = w / 2, CY = 175;
+            
+            function render() {
+                if (!playing && !isAnimating && currentT === targetT) return;
+                ctx.clearRect(0, 0, w, h);
+                let t = currentT;
+                N = parseInt(slider.value); 
+                document.getElementById('pizzaSlicesVal').innerText = N;
+                
+                const sliceAngle = (Math.PI * 2) / N;
+                const arcFlatLen = (Math.PI * 2 * R) / N; 
+                const rectWidth = (N / 2) * arcFlatLen; 
+                const startX = CX - rectWidth / 2, rectCenterY = CY; 
+                
+                if (t > 0) {
+                    ctx.globalAlpha = Math.min(1, t * 1.5);
+                    const topY = rectCenterY - R/2 - 25, rightX = startX + rectWidth + arcFlatLen + 20;
+                    const topEdgeStartX = startX + arcFlatLen / 2, topEdgeEndX = startX + rectWidth + arcFlatLen / 2;
+                    
+                    ctx.beginPath(); ctx.moveTo(topEdgeStartX, topY); ctx.lineTo(topEdgeEndX, topY);
+                    ctx.strokeStyle = '#f472b6'; ctx.lineWidth = 2; ctx.stroke(); 
+                    ctx.beginPath(); ctx.moveTo(topEdgeStartX, topY-5); ctx.lineTo(topEdgeStartX, topY+5); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(topEdgeEndX, topY-5); ctx.lineTo(topEdgeEndX, topY+5); ctx.stroke();
+                    if (t > 0.9) {
+                        ctx.fillStyle = '#f472b6'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+                        ctx.fillText('Ширина = π × R', startX + rectWidth/2 + arcFlatLen/2, topY - 10);
+                        
+                        ctx.beginPath(); ctx.moveTo(rightX, rectCenterY - R/2); ctx.lineTo(rightX, rectCenterY + R/2);
+                        ctx.strokeStyle = '#60a5fa'; ctx.stroke(); 
+                        ctx.beginPath(); ctx.moveTo(rightX-5, rectCenterY - R/2); ctx.lineTo(rightX+5, rectCenterY - R/2); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(rightX-5, rectCenterY + R/2); ctx.lineTo(rightX+5, rectCenterY + R/2); ctx.stroke();
+                        ctx.fillStyle = '#60a5fa'; ctx.textAlign = 'left'; ctx.fillText('Высота = R', rightX + 10, rectCenterY + 5);
+                    }
+                    ctx.globalAlpha = 1.0;
+                }
+                
+                const crustThick = Math.max(1, 8 * (16 / Math.max(16, N))), cutThick = Math.max(0.2, 1.5 * (16 / Math.max(16, N)));
+                for (let i = 0; i < N; i++) {
+                    const isEven = i % 2 === 0, initAngle = -Math.PI/2 + i * sliceAngle, targetAngle = isEven ? Math.PI/2 : -Math.PI/2;
+                    let targetTipX, targetTipY;
+                    if (isEven) { targetTipX = startX + (i/2) * arcFlatLen + arcFlatLen/2; targetTipY = rectCenterY - R/2; } 
+                    else { targetTipX = startX + Math.floor(i/2) * arcFlatLen + arcFlatLen; targetTipY = rectCenterY + R/2; }
+                    
+                    const curAngle = (1 - t) * initAngle + t * targetAngle;
+                    const curTipX = (1 - t) * CX + t * targetTipX, curTipY = (1 - t) * CY + t * targetTipY;
+                    const a = sliceAngle / 2;
+                    const curCpX = (1 - t) * (R / Math.cos(a)) + t * R;
+                    const x1 = (1 - t) * (R * Math.cos(-a)) + t * R, y1 = (1 - t) * (R * Math.sin(-a)) + t * (-arcFlatLen/2);
+                    const x2 = (1 - t) * (R * Math.cos(a)) + t * R, y2 = (1 - t) * (R * Math.sin(a)) + t * (arcFlatLen/2);
+                    
+                    ctx.save(); ctx.translate(curTipX, curTipY); ctx.rotate(curAngle);
+                    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(x1, y1); ctx.quadraticCurveTo(curCpX, 0, x2, y2); ctx.closePath();
+                    ctx.fillStyle = '#fde047'; ctx.fill(); ctx.strokeStyle = '#eab308'; ctx.lineWidth = cutThick; ctx.stroke(); 
+                    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(curCpX, 0, x2, y2);
+                    ctx.strokeStyle = '#d97706'; ctx.lineWidth = crustThick; ctx.stroke(); 
+                    ctx.restore();
+                }
+                
+                if (isAnimating) {
+                    currentT += (targetT - currentT) * 0.05;
+                    if(Math.abs(currentT - targetT) > 0.05 && currentT%0.2 < 0.05) playSound('sine', 300+currentT*200, 0.02, 0.02); 
+                    if (Math.abs(currentT - targetT) < 0.005) {
+                        currentT = targetT; isAnimating = false;
+                        btn.innerText = currentT === 1 ? "Вернуть в форму круга" : "Собрать прямоугольник";
+                    }
+                }
+                if(playing) requestAnimationFrame(render);
+            }
+            
+            slider.oninput = () => { if (!isAnimating && playing) requestAnimationFrame(render); };
+            btn.onclick = () => { targetT = targetT === 1 ? 0 : 1; if (!isAnimating) { isAnimating = true; btn.innerText = "Анимация..."; if(playing) render(); } };
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // 6. ЛУКОВИЦА
+        const createOnion = () => {
+            const cvs = document.getElementById('onionCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const slider = document.getElementById('onionSlider'), btn = document.getElementById('onionBtn');
+            let currentT = 0, targetT = 0, isAnimating = false, playing = false;
+
+            const N = 40, M = 60, R_max = 100, CX = 550, CY = 175; 
+            const startX = 60, baseY = 290, tipY = baseY - R_max, baseWidth = 2 * Math.PI * R_max; 
+
+            function render() {
+                if (!playing && !isAnimating && currentT===targetT) return;
+                ctx.clearRect(0, 0, w, h);
+                let t = currentT;
+
+                for (let i = N; i >= 1; i--) {
+                    const r = i * (R_max / N);
+                    ctx.beginPath();
+                    for (let j = 0; j <= M; j++) {
+                        const theta = (j / M) * 2 * Math.PI;
+                        const circleAngle = theta + Math.PI;
+                        const x0 = CX + r * Math.sin(circleAngle), y0 = CY - r * Math.cos(circleAngle);
+                        const x1 = startX + (theta / (2*Math.PI)) * (2 * Math.PI * r), y1 = baseY - r; 
+                        const x = (1-t) * x0 + t * x1, y = (1-t) * y0 + t * y1;
+                        if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    const hue = 160 + (i/N) * 60; 
+                    ctx.strokeStyle = `hsl(${hue}, 80%, 50%)`; ctx.lineWidth = (R_max / N) + 0.5; ctx.stroke();
+                }
+
+                if (t > 0) {
+                    ctx.globalAlpha = Math.min(1, t * 1.5);
+                    ctx.strokeStyle = '#f472b6'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(startX, baseY + 15); ctx.lineTo(startX + baseWidth*t, baseY + 15); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(startX, baseY + 5); ctx.lineTo(startX, baseY + 25); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(startX + baseWidth*t, baseY + 5); ctx.lineTo(startX + baseWidth*t, baseY + 25); ctx.stroke();
+                    
+                    if (t > 0.9) {
+                        ctx.fillStyle = '#f472b6'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+                        ctx.fillText('Основание = 2πR', startX + baseWidth/2, baseY + 35);
+                        ctx.strokeStyle = '#60a5fa';
+                        ctx.beginPath(); ctx.moveTo(startX - 15, tipY); ctx.lineTo(startX - 15, baseY); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(startX - 25, tipY); ctx.lineTo(startX - 5, tipY); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(startX - 25, baseY); ctx.lineTo(startX - 5, baseY); ctx.stroke();
+                        ctx.save(); ctx.translate(startX - 25, tipY + R_max/2); ctx.rotate(-Math.PI/2);
+                        ctx.fillStyle = '#60a5fa'; ctx.textAlign = 'center'; ctx.fillText('Высота = R', 0, 0); ctx.restore();
+                    }
+                    ctx.globalAlpha = 1.0;
+                }
+
+                if (isAnimating) {
+                    currentT += (targetT - currentT) * 0.05; slider.value = currentT * 100;
+                    if(Math.abs(currentT - targetT) > 0.05 && currentT%0.2 < 0.05) playSound('triangle', 200+currentT*300, 0.03, 0.01); 
+                    if (Math.abs(currentT - targetT) < 0.005) {
+                        currentT = targetT; slider.value = currentT * 100; isAnimating = false;
+                        btn.innerText = currentT === 1 ? "Свернуть обратно" : "Развернуть кольца!";
+                    }
+                }
+                if(playing) requestAnimationFrame(render);
+            }
+            slider.oninput = (e) => { currentT = parseFloat(e.target.value)/100; targetT = currentT; isAnimating = false; btn.innerText = currentT > 0.5 ? "Свернуть обратно" : "Развернуть кольца!"; if(playing) render(); };
+            btn.onclick = () => { targetT = targetT === 1 ? 0 : 1; if (!isAnimating) { isAnimating = true; btn.innerText = "Анимация..."; if(playing) render(); } };
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // ==========================================
+        // 7. БЛОКИ ГАЛИЛЕЯ
+        // ==========================================
+        const createBlocks = () => {
+            const cvs = document.getElementById('blocksCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const selectMass = document.getElementById('blocksMass');
+            const btn = document.getElementById('blocksBtn');
+            const uiCols = document.getElementById('blocksCollisions');
+            
+            let playing = false, running = false, isFinished = false;
+            let m1, m2, w1, w2, wallX=20, groundY=180;
+            let x1, x2, v1, v2, cols;
+            let flashes = []; 
+            
+            function reset() {
+                let N = parseInt(selectMass.value);
+                m1 = 1; m2 = Math.pow(100, N);
+                
+                w1 = 30; 
+                w2 = (N === 0) ? 30 : (N === 1 ? 60 : 100); 
+                
+                x1 = 150; 
+                x2 = 400; 
+                v1 = 0; 
+                v2 = -150; 
+                cols = 0;
+                uiCols.innerText = cols;
+                flashes = [];
+                isFinished = false;
+            }
+            reset();
+
+            function drawArrow(fromX, fromY, vel, color) {
+                if (Math.abs(vel) < 1) return;
+                let length = vel * 0.4; 
+                if (length > 150) length = 150; 
+                if (length < -150) length = -150;
+                
+                const toX = fromX + length;
+                ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, fromY);
+                ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
+                
+                ctx.beginPath();
+                if (vel > 0) {
+                    ctx.moveTo(toX, fromY); ctx.lineTo(toX-10, fromY-5); ctx.lineTo(toX-10, fromY+5);
+                } else {
+                    ctx.moveTo(toX, fromY); ctx.lineTo(toX+10, fromY-5); ctx.lineTo(toX+10, fromY+5);
+                }
+                ctx.fillStyle = color; ctx.fill();
+            }
+
+            function draw() {
+                ctx.clearRect(0,0,w,h);
+                
+                if (Math.abs(v1) > 2000) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.fillRect(wallX, groundY-w1, x2 - wallX, w1);
+                }
+
+                ctx.fillStyle = '#475569';
+                ctx.fillRect(0, groundY, w, h-groundY); 
+                ctx.fillRect(0, groundY-120, wallX, 120); 
+                
+                for(let i=flashes.length-1; i>=0; i--) {
+                    let f = flashes[i];
+                    ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(253, 224, 71, ${f.a})`; 
+                    ctx.fill();
+                    f.r += 2; f.a -= 0.05;
+                    if(f.a <= 0) flashes.splice(i, 1);
+                }
+                
+                ctx.fillStyle = '#38bdf8'; 
+                ctx.fillRect(x1, groundY-w1, w1, w1);
+                ctx.fillStyle = '#fff'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+                ctx.fillText('1kg', x1+w1/2, groundY-w1-10);
+                
+                ctx.fillStyle = '#fb923c'; 
+                ctx.fillRect(x2, groundY-w2, w2, w2);
+                ctx.fillStyle = '#fff'; ctx.font='bold 14px sans-serif'; 
+                let mLabel = m2 === 1 ? '1kg' : (m2 === 100 ? '100kg' : '10,000kg');
+                ctx.fillText(mLabel, x2+w2/2, groundY-w2-10);
+
+                if (running || cols > 0) {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillText(`v: ${Math.round(v1)}`, x1+w1/2, groundY-w1-25);
+                    ctx.fillStyle = '#fb923c';
+                    ctx.fillText(`v: ${Math.round(v2)}`, x2+w2/2, groundY-w2-25);
+                    
+                    drawArrow(x1+w1/2, groundY-w1/2, v1, '#0284c7');
+                    drawArrow(x2+w2/2, groundY-w2/2, v2, '#ea580c');
+                }
+
+                if (isFinished) {
+                    ctx.fillStyle = '#10b981'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'left';
+                    ctx.fillText('✓ Все столкновения завершены', wallX + 20, 30);
+                }
+            }
+
+            function playClink() {
+                if(!soundEnabled || !audioCtx) return;
+                let now = audioCtx.currentTime;
+                if(now - lastClink < 0.04) return; 
+                lastClink = now;
+                playSound('square', Math.random()*200 + 400, 0.02, 0.03);
+            }
+
+            function render() {
+                if (!playing) return;
+                if (running) {
+                    let dt = 1 / 60; 
+                    let maxVel = Math.max(Math.abs(v1), Math.abs(v2));
+                    let substeps = Math.ceil((maxVel * dt) / 0.5);
+                    if (substeps < 1) substeps = 1;
+                    
+                    let sdt = dt / substeps;
+                    
+                    for(let i=0; i<substeps; i++) {
+                        x1 += v1 * sdt;
+                        x2 += v2 * sdt;
+                        
+                        if (x1 <= wallX) {
+                            x1 = wallX; v1 = Math.abs(v1); cols++; 
+                            flashes.push({x: wallX, y: groundY-w1/2, a: 1, r: 5});
+                            playClink();
+                        }
+                        if (x1 + w1 >= x2) {
+                            x1 = x2 - w1;
+                            let nv1 = (v1 * (m1 - m2) + 2 * m2 * v2) / (m1 + m2);
+                            let nv2 = (v2 * (m2 - m1) + 2 * m1 * v1) / (m1 + m2);
+                            v1 = nv1; v2 = nv2; cols++; 
+                            flashes.push({x: x2, y: groundY-w1/2, a: 1, r: 5});
+                            playClink();
+                        }
+                    }
+                    
+                    uiCols.innerText = cols;
+                    
+                    // Правильное условие завершения (для всех N, включая 1:1)
+                    if (v1 >= 0 && v2 >= v1 && cols > 0) {
+                        isFinished = true;
+                        btn.innerText = "Сброс";
+                        if (x1 > w + 50 && x2 > w + 50) {
+                            running = false; 
+                        }
+                    }
+                }
+                draw();
+                requestAnimationFrame(render);
+            }
+
+            selectMass.onchange = () => { reset(); draw(); btn.innerText = "Запустить симуляцию"; running=false; };
+            btn.onclick = () => {
+                if (isFinished || (!running && cols > 0)) { 
+                    reset(); draw(); btn.innerText = "Запустить симуляцию"; 
+                    return; 
+                }
+                if (!running) {
+                    running = true; btn.innerText = "В процессе...";
+                }
+            }
+
+            draw(); 
+            return { play: () => { if(!playing) { playing=true; render(); } }, pause: () => playing = false };
+        };
+
+        // ==========================================
+        // 8. ЧИСЛОВЫЕ РЯДЫ (С ФАКТОМ ПРО КАРАНТИН)
+        // ==========================================
+        const createSeries = () => {
+            const cvs = document.getElementById('seriesCanvas');
+            const { ctx, w, h } = makeRetina(cvs);
+            const slider = document.getElementById('seriesSlider'), btn = document.getElementById('seriesBtn');
+            let autoInterval, currentTerm = 0, playing = false;
+            const maxTerms = 60, histLeibniz = [0], histNil = [3]; 
+            
+            let curL = 0, curN = 3;
+            for(let k=0; k<=maxTerms; k++) {
+                curL += (4 * Math.pow(-1, k)) / (2*k + 1); histLeibniz.push(curL);
+                if (k > 0) { const n = 2*k; curN += (4 * Math.pow(-1, k+1)) / (n * (n+1) * (n+2)); histNil.push(curN); }
+            }
+
+            function draw(n) {
+                ctx.clearRect(0, 0, w, h);
+                const padLeft = 40, padRight = 20, padTop = 20, padBottom = 30;
+                const graphW = w - padLeft - padRight, graphH = h - padTop - padBottom;
+                const minY = 2.6, maxY = 4.2;
+                function getY(val) { return padTop + graphH - ((val - minY) / (maxY - minY)) * graphH; }
+                function getX(idx) { return padLeft + (idx / maxTerms) * graphW; }
+
+                ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(padLeft, padTop); ctx.lineTo(padLeft, padTop + graphH); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(padLeft, padTop + graphH); ctx.lineTo(padLeft + graphW, padTop + graphH); ctx.stroke();
+                
+                const piY = getY(Math.PI);
+                ctx.beginPath(); ctx.moveTo(padLeft, piY); ctx.lineTo(padLeft + graphW, piY);
+                ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = '#10b981'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left';
+                ctx.fillText('Точное π ≈ 3.14159', padLeft + 10, piY - 10);
+
+                ctx.beginPath();
+                for(let i=0; i<=n; i++) { const px = getX(i), py = getY(histLeibniz[i+1]); if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.stroke();
+                
+                ctx.beginPath();
+                for(let i=0; i<=n; i++) { const px = getX(i), py = getY(histNil[i]); if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+                ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 3; ctx.stroke();
+
+                if (n > 0) {
+                    ctx.beginPath(); ctx.arc(getX(n), getY(histLeibniz[n+1]), 5, 0, Math.PI*2); ctx.fillStyle = '#38bdf8'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(getX(n), getY(histNil[n]), 5, 0, Math.PI*2); ctx.fillStyle = '#818cf8'; ctx.fill();
+                }
+                document.getElementById('seriesTerms').innerText = n; 
+                document.getElementById('valLeibniz').innerText = round5(histLeibniz[n+1]); 
+                document.getElementById('valNil').innerText = round5(histNil[n]);
+            }
+
+            slider.oninput = (e) => { clearInterval(autoInterval); currentTerm = parseInt(e.target.value); draw(currentTerm); btn.innerText = "Автоматический расчет"; };
+            btn.onclick = () => {
+                clearInterval(autoInterval); if (currentTerm >= maxTerms) { currentTerm = 0; slider.value = 0; }
+                btn.innerText = "Вычисляем...";
+                autoInterval = setInterval(() => {
+                    if(!playing) return; 
+                    if (currentTerm < maxTerms) { currentTerm++; slider.value = currentTerm; draw(currentTerm); playSound('sine', 400+currentTerm*10, 0.05, 0.05); } 
+                    else { clearInterval(autoInterval); btn.innerText = "Сброс"; }
+                }, 100); 
+            };
+            return { play: () => { playing=true; draw(currentTerm); }, pause: () => playing=false };
+        };
+
+        // ================== ИНИЦИАЛИЗАЦИЯ И OBSERVER ==================
+        document.addEventListener("DOMContentLoaded", () => {
+            const sims = {
+                'sim-wheel': createWheel(),
+                'sim-archimedes': createArchimedes(),
+                'sim-montecarlo': createMonteCarlo(),
+                'sim-buffon': createBuffon(),
+                'sim-pizza': createPizza(),
+                'sim-onion': createOnion(),
+                'sim-blocks': createBlocks(),
+                'sim-series': createSeries()
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const sim = sims[entry.target.id];
+                    if (sim) {
+                        if (entry.isIntersecting) {
+                            sim.play();
+                        } else {
+                            sim.pause();
+                        }
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            Object.keys(sims).forEach(id => {
+                const el = document.getElementById(id);
+                if(el) observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
